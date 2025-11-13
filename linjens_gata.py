@@ -58,50 +58,66 @@ st.markdown("### Gissa ekvationen för linjen ovan!")
 spelare = "Spelare 1" if st.session_state.turn == 1 else "Spelare 2"
 st.subheader(f"Det är {spelare}s tur!")
 
-gissning = st.text_input("Skriv din gissning (ex: y = 2x + 1)").replace(" ", "")
+st.markdown("### Gissa ekvationen för linjen ovan!")
+
+spelare = "Spelare 1" if st.session_state.turn == 1 else "Spelare 2"
+st.subheader(f"Det är {spelare}s tur!")
+
+gissning = st.text_input("Skriv din gissning (t.ex. y = 2x + 1)").replace(" ", "")
 
 def parse_guess(guess):
-    """Tolkar elevens gissning och plockar ut k och m"""
     pattern = r"y=([\-]?\d*\.?\d*)x([\+\-]?\d+\.?\d*)?"
     match = re.match(pattern, guess)
     if match:
-        k = float(match.group(1)) if match.group(1) not in ["", "-", "+"] else (1.0 if match.group(1) != "-" else -1.0)
-        m = float(match.group(2)) if match.group(2) else 0.0
+        k = match.group(1)
+        m = match.group(2)
+        k = float(k) if k not in ["", "+", "-"] else (1.0 if k != "-" else -1.0)
+        m = float(m) if m else 0.0
         return k, m
     return None, None
 
 if st.button("Gissa!"):
     k_guess, m_guess = parse_guess(gissning)
+
     if k_guess is None:
-        st.warning("Fel format! Skriv t.ex. y = 2x + 1")
+        st.warning("⚠️ Formatet känns fel. Skriv exempelvis: **y = 2x + 1**")
     else:
+        # Kontrollera rätt svar
         if abs(k_guess - st.session_state.k) < 0.01 and abs(m_guess - st.session_state.m) < 0.01:
-            st.success(f"Rätt! {spelare} får 1 poäng 🎉")
+            st.success(f"🎉 RÄTT! {spelare} får 1 poäng!")
+
+            # Ge poäng
             if st.session_state.turn == 1:
                 st.session_state.score1 += 1
             else:
                 st.session_state.score2 += 1
-            # Ny linje
+
+            # Generera ny linje automatiskt
             st.session_state.k = random.randint(-4, 4)
             st.session_state.m = random.randint(-5, 5)
+
+            # Visa direkt uppdaterad linje
+            st.rerun()
+
         else:
-            # Ledtråd (AI-inspirerad feedback)
-            tip = "Lutningen är större" if k_guess < st.session_state.k else "Lutningen är mindre"
-            tip_m = "Skärningen är högre" if m_guess < st.session_state.m else "Skärningen är lägre"
-            st.info(f"Fel! Tips: {tip}, {tip_m}. Nu är det den andra spelarens tur.")
+            # Pedagogisk feedback
+            feedback = []
+
+            # L lutning
+            if k_guess < st.session_state.k:
+                feedback.append("➡️ **Linjen är brantare än du tror. Prova ett större värde på k.**")
+            elif k_guess > st.session_state.k:
+                feedback.append("➡️ **Linjen är mindre brant än du tror. Prova ett mindre värde på k.**")
+
+            # m skärning
+            if m_guess < st.session_state.m:
+                feedback.append("➡️ **Linjen skär y-axeln högre upp. Prova ett större värde på m.**")
+            elif m_guess > st.session_state.m:
+                feedback.append("➡️ **Linjen skär y-axeln längre ned. Prova ett mindre värde på m.**")
+
+            st.info("❌ **Fel gissat!** Här kommer en ledtråd:")
+            for tip in feedback:
+                st.write(tip)
+
+            # Byt spelare
             st.session_state.turn = 2 if st.session_state.turn == 1 else 1
-
-# --- Poängställning ---
-st.markdown("---")
-st.subheader("Poängställning:")
-st.write(f"Spelare 1: **{st.session_state.score1}** poäng")
-st.write(f"Spelare 2: **{st.session_state.score2}** poäng")
-
-# --- Återställ ---
-if st.button("Starta om spelet"):
-    st.session_state.score1 = 0
-    st.session_state.score2 = 0
-    st.session_state.turn = 1
-    st.session_state.k = random.randint(-4, 4)
-    st.session_state.m = random.randint(-5, 5)
-    st.rerun()
