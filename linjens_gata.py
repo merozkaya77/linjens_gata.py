@@ -25,13 +25,32 @@ if "m" not in st.session_state:
 # --- Rita graf ---
 x = np.linspace(-10, 10, 200)
 y = st.session_state.k * x + st.session_state.m
-fig, ax = plt.subplots()
-ax.plot(x, y, label=f"Linjens gåta")
-ax.axhline(0, color='black', linewidth=0.8)
-ax.axvline(0, color='black', linewidth=0.8)
+# --- Rita graf med rutnät ---
+fig, ax = plt.subplots(figsize=(6, 6))
+ax.plot(x, y, label=f"Linjens gåta", linewidth=2)
+
+# Rita koordinataxlar
+ax.axhline(0, color='black', linewidth=1.2)
+ax.axvline(0, color='black', linewidth=1.2)
+
+# Rutnät
+ax.set_xlim(-10, 10)
 ax.set_ylim(-10, 10)
+ax.set_xticks(np.arange(-10, 11, 1))
+ax.set_yticks(np.arange(-10, 11, 1))
+ax.grid(True, which='both', color='gray', linewidth=0.5, linestyle='--')
+
+# Gör rutorna fyrkantiga (lika skalning på axlarna)
+ax.set_aspect('equal', adjustable='box')
+
+# Etiketter och titel
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_title("Gissa linjens ekvation")
 ax.legend()
+
 st.pyplot(fig)
+
 
 st.markdown("### Gissa ekvationen för linjen ovan!")
 
