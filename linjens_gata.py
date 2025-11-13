@@ -104,4 +104,4 @@ if st.button("Starta om spelet"):
     st.session_state.turn = 1
     st.session_state.k = random.randint(-4, 4)
     st.session_state.m = random.randint(-5, 5)
-    st.experimental_rerun()
+    st.rerun()
